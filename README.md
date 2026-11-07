@@ -1,186 +1,139 @@
 # Nexus Tab Installer
 
-Портативная программа для Windows, которая сама скачивает моды Nexus Mods по ссылкам и из открытых вкладок браузера.
-Версия 1.0.0 · Windows 10 и 11, 64 бит · [История изменений](CHANGELOG.md)
+**English** | [Русский](README_RU.md)
 
-[English](README_EN.md). Язык программы переключается в любой момент: RU / EN внизу боковой панели.
+A portable Windows program that downloads Nexus Mods files by itself, from links and from open browser tabs.
+Version 1.0.0 · Windows 10 and 11, 64-bit · [Changelog](CHANGELOG.md)
 
-Программа скачивает моды Nexus Mods **сама, без нажатий человеком** — для
-бесплатного (Free) и платного (Premium) аккаунта:
+The program downloads Nexus Mods files **by itself, with no clicks by a person**, for a free or a paid (Premium) account:
 
-- **по списку ссылок** (вставьте ссылки: «Вставить ссылки или открыть JSON»);
-- **по открытым вкладкам браузера** в любом состоянии: страница мода, вкладка
-  Files, страница конкретного файла (`?tab=files&file_id=…`, в т.ч. Slow download).
-  Если вкладка указывает на конкретный файл — скачивается именно он, иначе
-  последний основной (MAIN) файл.
+- **from a list of links** ("Paste links or open JSON");
+- **from open browser tabs** in any state: a mod page, its Files tab or the page of one file (`?tab=files&file_id=…`, including Slow download).
+  A tab that points to one file downloads that file, otherwise the latest main file.
 
-## Скачать
+The language can be switched at any time: RU / EN at the bottom of the side bar. The first start follows the language of Windows.
 
-Готовая программа лежит на странице **Releases** этого репозитория: файл `NexusTabInstaller-<версия>-portable.zip`. Устанавливать ничего
-не нужно, подробности ниже в «Как начать». Собрать такой архив самому: `py -3 scripts/make_package.py` (нужен Python 3.14).
+## Download
 
-## Как это работает
+The ready program is on the **Releases** page of this repository: the file `NexusTabInstaller-<version>-portable.zip`. Nothing needs installing,
+see "Getting started" below. To build such an archive yourself: `py -3 scripts/make_package.py` (needs Python 3.14).
 
-| Аккаунт / ключ | Как скачивается |
+## How it works
+
+| Account / key | How files download |
 |---|---|
-| Premium + API-ключ | напрямую через Nexus API, браузер не нужен (**не проверялось**, см. ниже) |
-| Free (с ключом или без) | расширение открывает страницу файла в отдельном окне, нажимает **Slow download** (для файлов > 500 МБ — **Standard download**), ждёт отсчёт сайта и перехватывает начавшуюся загрузку; файл скачивает программа (с докачкой и повторами) |
-| Premium без ключа | то же, кнопка **Start download** (**не проверялось**, см. ниже) |
+| Premium + API key | directly through the Nexus API, no browser needed (**not tested**, see below) |
+| Free (with or without a key) | the extension opens the file page in a separate window, presses **Slow download** (**Standard download** for files over 500 MB), waits for the countdown of the site and takes over the download; the program downloads the file, with resume and retries |
+| Premium without a key | the same, with the **Start download** button (**not tested**, see below) |
 
-**Premium-аккаунт не проверялся:** проверены только Free-аккаунты. Программа сама
-покажет это предупреждение, если увидит Premium. Начните с одного-двух модов и проверьте результат.
+**A Premium account has not been tested:** only Free accounts were checked. The program shows this warning if it sees Premium.
+Start with one or two mods and check the result.
 
-- Ошибка одного файла не останавливает очередь: до 3 попыток, затем файл
-  помечается ошибкой, остальные скачиваются дальше.
-- Если CDN не отдаёт ссылку программе (например, VPN в браузере), файл
-  автоматически скачивается средствами самого браузера и переносится в библиотеку.
-- Уже скачанные ранее файлы не скачиваются повторно.
-- Файл не обязан быть архивом: `.esp`, `.dll`, `.schem` и другие скачиваются так же. С API-ключом берётся последний основной
-  архив и все основные файлы без архива. Без ключа сайт сам выбирает один основной файл. Нужные файлы можно отметить в «Файлы / версии».
-- Если программу закрыли посреди загрузки, при следующем запуске её список вернётся:
-  нажмите «Скачать выбранные», готовые файлы будут пропущены.
-- Если Nexus попросит **войти** или пройти **проверку (CAPTCHA)**, программа только предупредит:
-  вверху окна появится сообщение, а окно браузера выйдет на передний план. Вводит это человек,
-  после чего загрузка продолжится сама. Если никто не ответил за 15 минут, очередь остановится
-  и подождёт кнопку «Продолжить загрузку». Программа не проходит и не обходит CAPTCHA.
+- An error in one file does not stop the queue: up to 3 tries, then the file is marked as failed and the others go on.
+- Files downloaded earlier are not downloaded again.
+- A file need not be an archive: `.esp`, `.dll`, `.schem` and others work the same way. With an API key the program takes the latest main archive and all main
+  files that are not archives. Without a key the site itself chooses one main file. Choose exactly what you need in "Files / versions".
+- If the program was closed in the middle of a download, its list comes back at the next start: press "Download selected" and finished files are skipped.
+- If Nexus asks you to **log in** or pass a **check (CAPTCHA)**, the program only warns you. A person does that, and the download then goes on by itself.
+  The program neither solves nor bypasses a CAPTCHA.
 
-## Требования мода
+## Requirements of a mod
 
-Рядом с модом короткая отметка: «Не хватает: 2», «По желанию: 1», «Вне Nexus: 2» или «Требования есть». По щелчку открывается список с
-примечаниями автора и кнопкой «Добавить». Вверху одно предупреждение на весь список: «Добавить в список», «Докачать сейчас», «Скрыть».
+A short mark next to a mod says how things stand: "Missing: 2", "Optional: 1", "Outside Nexus: 2" or "Requirements met". A click opens the list with the note of the
+author and an "Add" button. One warning at the top covers the whole list and offers "Add to list", "Download them now" and "Hide".
 
-**Это только подсказка.** Список пишет автор мода, и что нужно именно вам, программа знать не может, поэтому скачивание никогда не запрещается
-и не ждёт ответа. Уже есть то, что в списке, скачано или найдено в MO2 и Vortex. То, что лежит вне Nexus (SKSE, Visual C++), проверить нельзя,
-программа только напомнит один раз, со ссылкой. В настройках можно сделать так, чтобы нужные моды добавлялись сами, или выключить всё это.
+**This is only a hint.** The list is written by the author of the mod, and the program cannot know what you really need: downloads are never refused and never wait for
+an answer. It counts as already here when it is in the list, downloaded, or found in MO2 or Vortex. What lies outside Nexus (SKSE, Visual C++) cannot be checked, so
+the program only reminds you once, with a link. In the settings you can also have needed mods added by themselves, or turn all of this off.
 
-## Новые версии
+## New versions
 
-Кнопка «Проверить обновления» на вкладке «Загрузки» и, по желанию, проверка раз в день при запуске. Найденное только предлагается:
-пока вы не нажмёте кнопку, ничего не скачивается.
+"Check for updates" on the "Downloads" tab, and if you want, once a day at start. What is found is only offered: nothing downloads until you press the button.
 
-Названия, размеры, требования и новые версии приходят из открытого API Nexus одним запросом, без ключа и без данных о вас: только номера модов.
+Names, sizes, requirements and new versions come from the public Nexus API in one request, with no key and nothing about you: only the numbers of the mods.
 
-## Удаление, место на диске, уведомления
+## Deleting, disk space, notifications
 
-- **Удаление:** файл или целая сессия, с подтверждением в строке. Файлы уходят в Корзину, на флешке удаляются сразу. Копии в MO2 и Vortex остаются.
-- **Место на диске:** предупреждение перед загрузкой и во время неё. Загрузка продолжается, решаете вы.
-- **Уведомления:** сообщение Windows, когда загрузка закончилась, нужно ваше действие или кончается место. Выключается в настройках.
+- **Deleting:** a file or a whole session, with a confirmation in the row. Files go to the Recycle Bin, on a flash drive they are deleted right away. Copies in MO2 and Vortex stay.
+- **Disk space:** a warning before and during a download. The download goes on, you decide.
+- **Notifications:** a Windows message when a download ends, your action is needed or the disk is nearly full. Can be turned off in the settings.
 
-## Темп и риск блокировки
+## Pace and the risk of a block
 
-**Гарантии, что аккаунт не заблокируют, нет.** [Правила Nexus](https://help.nexusmods.com/article/18-terms-of-service)
-запрещают ботов и автоматические программы для доступа к контенту сайта (раздел 11) и скачивание
-намного сверх обычного использования без разрешения Nexus (раздел 10), аккаунт за это могут
-приостановить. Скачивание через браузер нажимает кнопки сайта автоматически, поэтому медленный темп
-снижает нагрузку и риск, но не делает такой способ разрешённым. Используйте его на свой риск.
-Способ с официальным API: Premium и API-ключ.
+**There is no guarantee that an account will not be blocked.** The [Nexus terms](https://help.nexusmods.com/article/18-terms-of-service) forbid bots and automated
+programs for accessing the content of the site (section 11) and downloading far beyond normal use without permission from Nexus (section 10), and an account can be
+suspended for that. Downloading through the browser presses the buttons of the site automatically, so a slow pace lowers the load and the risk but does not make this
+way allowed. Use it at your own risk. The way with the official API is Premium and an API key.
 
-Nexus не публикует лимит скачивания с сайта, поэтому числа ниже выбраны программой, это не
-проверенный безопасный порог. Менять темп можно в «Настройках». Там же есть вариант «Свой»: вы сами задаёте паузы и предел,
-ноль их выключает. Это на ваш страх и риск: чем короче паузы, тем выше риск. Если сайт сам попросит подождать, программа
-подождёт и при своём темпе.
+Nexus does not publish a limit for site downloads, so the numbers below are the choice of this program, not a proven safe threshold. In the "Settings" you can change the
+pace or choose "Own" and set the pauses and the limit yourself, at your own risk.
 
-| Темп | Файл раз в | Длинная пауза | В сутки | 100 файлов (без самих загрузок) |
+| Pace | One file every | Long pause | Per day | 100 files (not counting the downloads) |
 |---|---|---|---|---|
-| Осторожный (по умолчанию) | 60 с | 10 мин после 25 файлов | до 300 | около 2 ч 6 мин |
-| Умеренный | 25 с | 5 мин после 40 файлов | до 600 | около 50 мин |
-| Свой | сколько скажете | сколько скажете | сколько скажете | показано в «Настройках» |
+| Careful (default) | 60 s | 10 min after 25 files | up to 300 | about 2 h 6 min |
+| Moderate | 25 s | 5 min after 40 files | up to 600 | about 50 min |
+| Own | as you say | as you say | as you say | shown in the "Settings" |
 
-Программа сама реагирует на сигналы сайта:
+The program also reacts to the site itself: it slows down after a check, waits after failures and after "too many requests", and stops at a block page until you press the button.
 
-| Сигнал | Что происходит |
+## Mod Organizer 2 and Vortex
+
+Choose "To Mod Organizer 2" or "To Vortex" for a mod or in "Destination for all mods". The program finds both programs by itself. A copy of every file stays in its session folder.
+
+| | What happens |
 |---|---|
-| Nexus показал проверку | следующие файлы идут в 2–4 раза реже в течение 6 часов |
-| Сайт не отдал файл | пауза растёт с каждой неудачей до 30 минут, после 6 неудач подряд загрузка останавливается и ждёт вас |
-| Ответ «слишком много запросов» | вся очередь ждёт 30 минут, при повторе вдвое дольше (до 6 часов), файл не теряется |
-| Страница блокировки | загрузка останавливается и продолжается только после вашего нажатия |
+| **MO2 closed, simple mod** | the file is on the Downloads tab with its Nexus details, the mod is installed and enabled in the chosen profile |
+| **MO2 open, or a mod with an installer** | the file appears on the Downloads tab by itself, you install it with a double click |
+| **Vortex closed** | the program checks that the game is set up there, starts it with the right game, waits for the switch and passes the file to install |
+| **Vortex open on this game** | the file goes to install right away |
+| **Vortex open on another game** | the file goes to the downloads of the right game and you press Install |
 
-Темп и паузы сохраняются после перезапуска программы, а Windows не уходит в сон во время загрузки.
-Случайных задержек и имитации действий человека в программе нет намеренно.
+After that Vortex follows its own settings: by default it enables an installed mod and deploys it to the game folder.
 
-## Mod Organizer 2 и Vortex
+MO2 and Vortex take only archives, so a file that is not an archive reaches them in a small zip. Programs (`.exe` and so on) stay in the session folder, are not passed to
+the managers, and the program never runs them.
 
-Выберите «В Mod Organizer 2» или «В Vortex» у мода или в «Куда для всех модов». Программа сама находит обе программы, путь
-спросит, только если не нашла. Копия каждого файла всегда остаётся в папке сессии.
+## Getting started
 
-| | Что происходит |
-|---|---|
-| **MO2 закрыт, простой мод** | файл во вкладке Downloads с данными Nexus, мод установлен и включён в выбранном профиле |
-| **MO2 открыт или мод с установщиком** | файл появляется во вкладке Downloads сам, устанавливаете двойным щелчком |
-| **Vortex закрыт** | программа проверяет, что игра в нём настроена, запускает его с нужной игрой, ждёт переключения и передаёт файл на установку |
-| **Vortex открыт на этой игре** | файл сразу идёт на установку |
-| **Vortex открыт на другой игре** | файл кладётся в загрузки нужной игры, Install нажимаете вы |
+1. Unpack the archive into any folder, even on a flash drive, and run `START_WINDOWS.bat`. Nothing gets installed: Python and everything else is inside. A 64-bit Windows is needed.
+2. Install the extension into your browser, once: the program shows the steps. Then allow the connection in the program.
+3. Log in to Nexus Mods in that browser.
+4. In the program: "Find mods" (or paste links), tick the mods, "Download selected".
 
-Установка в Vortex всегда идёт в активную игру, поэтому программа сначала смотрит её в журнале Vortex. Если узнать не удалось,
-файл только кладётся в загрузки. Так мод для Skyrim не попадёт в другую игру. Плагины `.esp` после установки в MO2 включите
-во вкладке Plugins.
+An API key is not required, but it gives a choice of versions and direct Premium downloads. Everyone needs their own key, created in the account settings of Nexus Mods.
 
-Дальше Vortex действует по своим настройкам: по умолчанию он сам включает установленный мод и развёртывает его в папку игры.
+Settings, the key, logs and downloaded archives live in the `data/` folder next to the program. **Do not give this folder to others:** the key is kept there without encryption.
 
-MO2 и Vortex принимают только архивы, поэтому файл без архива они получают в маленьком zip. Программы (`.exe` и подобные) остаются
-в папке сессии, в менеджеры не передаются, и сама программа их никогда не запускает.
+Each download puts its files into its own folder with date and time: `data/sessions/2026-11-06 19-07-12/`.
 
-## Как начать
+## Portable
 
-1. Распакуйте архив в любую папку, хоть на флешку, и запустите `START_WINDOWS.bat`.
-   Устанавливать ничего не нужно: Python и всё остальное уже внутри папки. Нужна 64-битная Windows.
-2. Установите расширение в браузер, один раз: шаги покажет сама программа.
-   В программе разрешите подключение браузера.
-3. Войдите в Nexus Mods в этом браузере.
-4. В программе: «Найти моды» (или вставьте ссылки) → отметьте моды → «Скачать выбранные».
+The whole program lives in its folder. To move it, close it and move the folder. Only two things stay outside, and you install both yourself:
 
-API-ключ не обязателен, но с ним доступны выбор версий и прямые загрузки Premium. У каждого
-пользователя должен быть свой ключ: он создаётся в настройках аккаунта Nexus Mods.
+- **The extension in the browser.** After moving the folder, load it again from the new place.
+- **The NXM link handler.** An optional button in the settings and the only registry entry. After moving the folder, press it again.
 
-Настройки, ключ, журналы и скачанные архивы лежат в папке `data/` рядом с программой. Она создаётся
-при первом запуске. **Не передавайте эту папку другим людям:** ключ хранится в ней без шифрования.
+To remove the program, delete its folder and remove the extension from the browser.
 
-Каждая загрузка кладёт архивы в свою папку с датой и временем: `data/sessions/2026-11-06 19-07-12/`. Все сессии видны
-на вкладке «Загрузки», там же можно открыть папку, показать нужный файл или удалить ненужное. Архив, скачанный раньше, заново не качается и
-не копируется, он остаётся в своей сессии.
+## Browsers
 
-Если расширение уже стояло, после обновления программы откройте страницу расширений браузера и на карточке
-Nexus Tab Collector нажмите круглую стрелку или «Перезагрузить». Программа предупредит, если расширение устарело.
-
-## Портативность
-
-Программа целиком живёт в своей папке: Python, пакеты, окно, настройки и скачанные архивы. Чтобы перенести
-её, закройте программу и перенесите папку целиком, на другой диск или флешку. Настройки и архивы останутся.
-
-Вне папки остаются только две вещи, и обе ставите вы сами:
-
-- **Расширение в браузере.** Браузер запоминает, откуда его загрузили, поэтому после переноса папки
-  загрузите расширение заново из нового места. Удалить его можно на странице расширений браузера.
-- **Обработчик ссылок NXM.** Это необязательная кнопка в настройках и единственная запись в реестре Windows.
-  После переноса папки нажмите её ещё раз.
-
-Чтобы удалить программу, удалите её папку и расширение из браузера.
-
-## Браузеры
-
-Код расширения один для всех браузеров.
-
-| Браузер | Папка расширения | Что проверено |
+| Browser | Extension folder | What was tested |
 |---|---|---|
-| Edge | `extensions/chromium` | настоящее скачивание с Nexus (Free-аккаунт, с API-ключом и без него) и автоматические сценарии на имитации сайта |
-| Chrome | `extensions/chromium` | автоматические сценарии на имитации сайта |
-| Firefox | `extensions/firefox` | автоматические сценарии на имитации сайта |
-| Opera GX | `extensions/chromium` | автоматические сценарии на имитации сайта и настоящая страница Nexus без входа в аккаунт; скачивание с настоящего сайта не проверялось |
+| Edge | `extensions/chromium` | real downloads from Nexus (Free account, with and without an API key) and automated scenarios on a copy of the site |
+| Chrome | `extensions/chromium` | automated scenarios on a copy of the site |
+| Firefox | `extensions/firefox` | automated scenarios on a copy of the site |
+| Opera GX | `extensions/chromium` | automated scenarios on a copy of the site and a real Nexus page without logging in; downloads from the real site were not tested |
 
-Что учесть:
+- **"Always ask where to save files"** is better turned off in the browser settings.
+- **Firefox:** without a signature from Mozilla, the extension has to be loaded again after each restart of the browser.
+- **Opera GX:** RAM Limiter with a hard limit in GX Control may unload the download tab.
 
-- **«Всегда спрашивать, куда сохранять»** лучше выключить в настройках браузера. В Chrome окно сохранения
-  останется открытым, но файлы будут скачиваться. Firefox открывал бы окно на каждый файл, поэтому
-  загрузка остановится после первого и подскажет, что сделать.
-- **Firefox:** без подписи Mozilla расширение придётся загружать заново после каждого перезапуска браузера.
-- **Opera GX:** RAM Limiter с жёстким лимитом в GX Control может выгружать вкладку скачивания.
+## Documentation
 
-## Документация
+- [Connecting a browser](docs/BROWSER_SETUP_GUIDE_EN.html)
+- [На русском](README_RU.md)
 
-- [Подключение браузера](docs/BROWSER_SETUP_GUIDE.html)
-- [Настройки и хранение ключа](docs/SETTINGS.md)
+## License
 
-## Лицензия
-
-[MIT](LICENSE): программу можно свободно использовать, менять и распространять, сохраняя текст лицензии. Она даётся «как есть», без гарантий.
-Программа не связана с Nexus Mods, Mod Organizer 2 и Vortex.
+[MIT](LICENSE): free to use, change and share, keeping the text of the license. It comes "as is", without warranty.
+The program is not affiliated with Nexus Mods, Mod Organizer 2 or Vortex.
