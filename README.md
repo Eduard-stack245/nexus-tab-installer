@@ -1,6 +1,6 @@
 # Nexus Tab Installer
 
-**English** | [Русский](README_RU.md)
+**English** | 🇺🇦 [Русский](README_RU.md)
 
 A portable Windows program that downloads Nexus Mods files by itself, from links and from open browser tabs.
 Version 1.0.0 · Windows 10 and 11, 64-bit · [Changelog](CHANGELOG.md)
