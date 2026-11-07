@@ -21,7 +21,7 @@ NOT_FOR_THE_SCREEN = {
     # Told by date rules, see _finish of i18n.py.
     *(('views.py', month) for month in ('января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря')),
 }
-ALLOWED_RUSSIAN = {'Русский', 'Язык / Language'}  # the name of the language itself
+ALLOWED_RUSSIAN = {'Русский', 'Язык / Language', 'Українська'}  # the name of the language itself
 # Arguments of plural(): they reach the screen with a number, and the number has its own rule in i18n.py.
 COUNTED_WORDS = {'файл', 'файла', 'файлов', 'мод', 'мода', 'модов', 'сессия', 'сессии', 'сессий', 'файл ждёт', 'файла ждут', 'файлов ждут'}
 
@@ -29,7 +29,7 @@ COUNTED_WORDS = {'файл', 'файла', 'файлов', 'мод', 'мода',
 def shown_texts():
     """(file, text) of everything Russian in the source, with places to fill in as {}."""
     for path in sorted(SOURCE.rglob('*.py')):
-        if path.name in ('lang_en.py', 'i18n.py'):
+        if path.name in ('lang_en.py', 'lang_uk.py', 'i18n.py'):
             continue
         tree = ast.parse(path.read_text(encoding='utf-8'))
         skipped = set()
@@ -254,3 +254,76 @@ def test_who_has_used_the_program_stays_in_russian_whatever_windows_speaks(launc
     monkeypatch.setattr(module, 'system_language', lambda: 'en')
     h = launch(config={'browser_paired': True})
     assert 'Скачать выбранные' in buttons(h)
+
+
+# ------------------------------------------------------------------ Ukrainian, the third language
+from nexus_tab_installer.ui.lang_uk import UK  # noqa: E402
+
+
+def test_ukrainian_has_every_text_the_english_one_has():
+    """English is checked against the whole source above; Ukrainian must cover the same texts."""
+    assert sorted(set(EN) - set(UK)) == [] and sorted(set(UK) - set(EN)) == []
+
+
+def test_ukrainian_catalog_is_well_formed():
+    for source, target in UK.items():
+        assert len(re.findall(r'\{\d*\}', target)) == source.count('{}'), source
+        if source not in ALLOWED_RUSSIAN:
+            assert not re.search('[ыэъё]', target), (source, target)
+
+
+@pytest.mark.parametrize('russian, ukrainian', [
+    ('Готово: скачано и обработано 2 из 3 файлов.', 'Готово: завантажено й оброблено 2 з 3 файлів.'),
+    ('Новый список: 1 модов. История и скачанные файлы сохранены.', 'Новий список: 1 мод. Історію й завантажені файли збережено.'),
+    ('Новый список: 3 модов. История и скачанные файлы сохранены.', 'Новий список: 3 моди. Історію й завантажені файли збережено.'),
+    ('2 сессии · 5 файлов · 1,25 ГБ', '2 сесії · 5 файлів · 1,25 ГБ'),
+    ('1 сессия · 21 файл · 12 КБ', '1 сесія · 21 файл · 12 КБ'),
+    ('5 ноября 2026, 12:30', '5 листопада 2026, 12:30'),
+    ('Сегодня, 12:30', 'Сьогодні, 12:30'),
+    ('Мод «Лук Ветра» включён в профиле Default.', 'Мод «Лук Ветра» увімкнено в профілі Default.'),
+    ('Браузер скачает 3 файла по очереди, примерно 5 мин без учёта самих загрузок. Не закрывайте браузер: между файлами идут паузы.',
+     'Браузер завантажить 3 файли по черзі, приблизно 5 хв без урахування самих завантажень. Не закривайте браузер: між файлами є паузи.'),
+])
+def test_ukrainian_messages_built_from_pieces(russian, ukrainian):
+    assert translate(russian, 'uk') == ukrainian
+
+
+def test_every_screen_is_all_ukrainian(launch, monkeypatch):
+    info = ModInfo(GAME, 196600, 'Real Name', '1.0', size_kb=2048, game_number=1704, game_name='Skyrim Special Edition',
+                   requirements=[Requirement('Library', 'Only for VR', 1, GAME), Requirement('SKSE', url='https://skse.silverlock.org', external=True)])
+    monkeypatch.setattr(module, 'mod_infos', lambda ids: {key: info for key in ids})
+    h = launch(config={'language': 'uk', 'browser_paired': False})
+    h.seed_archive(GAME, 196600, 10, 'old.7z')
+
+    def russian_left():
+        sources = {source.strip() for source in EN} | {source.strip() for source in UK}
+        return [text for text in all_text(h) if text.strip() in sources and UK.get(text.strip(), text) != text
+                and text not in ALLOWED_RUSSIAN] + [text for text in all_text(h) if re.search('[ыэъё]', text) and text not in ALLOWED_RUSSIAN]
+
+    async def scenario():
+        field = next(c for c in h.tree() if isinstance(c, ft.TextField) and c.multiline)
+        field.value = MOD_A
+        next(c for c in h.tree() if isinstance(c, ft.Button) and c.content == 'Додати посилання').on_click(None)
+        await h.until(lambda: any(isinstance(c, ft.Text) and c.value == 'Real Name' for c in h.tree()))
+        assert russian_left() == []
+        nav(h, 'Завантаження')
+        assert russian_left() == []
+        nav(h, 'Налаштування')
+        assert russian_left() == []
+
+    h.run(scenario)
+
+
+def test_switching_to_ukrainian_and_back(launch, tmp_path):
+    h = launch(config={'browser_paired': True})
+    press_language(h, 'UA')
+    assert 'Завантажити обрані' in buttons(h)
+    assert load_settings(tmp_path / 'data' / 'config' / 'config.json')['language'] == 'uk'
+    press_language(h, 'RU')
+    assert 'Скачать выбранные' in buttons(h)
+
+
+def test_first_start_on_ukrainian_windows_is_ukrainian(launch, monkeypatch):
+    monkeypatch.setattr(module, 'system_language', lambda: 'uk')
+    h = launch()
+    assert 'Завантажити обрані' in buttons(h)

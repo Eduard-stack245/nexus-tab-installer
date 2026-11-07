@@ -209,7 +209,7 @@ def main(page: ft.Page):
                            size=12, color='#F2B86B', visible=saved_pace == CUSTOM)
     pace_hint = ft.Text('', size=12, color='#B5BBD1')
     language_choice = ft.Dropdown(label='Язык / Language', value=screen.language, width=260,
-                                  options=[ft.dropdown.Option('ru', 'Русский'), ft.dropdown.Option('en', 'English')])
+                                  options=[ft.dropdown.Option('ru', 'Русский'), ft.dropdown.Option('en', 'English'), ft.dropdown.Option('uk', 'Українська')])
     notify_opt = ft.Checkbox(label='Уведомлять через Windows: загрузка закончилась или нужно ваше действие',
                              value=bool(config.get('notify_enabled', True)))
     auto_scan_opt = ft.Checkbox(label='Сразу показывать моды из открытых вкладок, когда браузер подключён',
@@ -1087,7 +1087,7 @@ def main(page: ft.Page):
             tell(f'Не удалось открыть папку: {exc}')
 
     def open_browser_visual_guide(e=None):
-        guide = application_root() / 'docs' / ('BROWSER_SETUP_GUIDE_EN.html' if screen.language == 'en' else 'BROWSER_SETUP_GUIDE.html')
+        guide = application_root() / 'docs' / {'en': 'BROWSER_SETUP_GUIDE_EN.html', 'uk': 'BROWSER_SETUP_GUIDE_UK.html'}.get(screen.language, 'BROWSER_SETUP_GUIDE.html')
         if not guide.is_file():
             tell('Наглядная инструкция не найдена в папке docs.')
             return
@@ -2596,10 +2596,10 @@ def main(page: ft.Page):
             padding=12, border_radius=10, bgcolor='#171926',
             on_click=lambda e, t=name: change_tab(t))))
 
-    language_buttons = {code: ft.Container(content=ft.Text(code.upper(), size=12, weight=ft.FontWeight.W_600), border_radius=7,
+    language_buttons = {code: ft.Container(content=ft.Text(label, size=12, weight=ft.FontWeight.W_600), border_radius=7,
                                            padding=ft.Padding.symmetric(horizontal=10, vertical=4),
                                            tooltip='Язык / Language', on_click=lambda e, chosen=code: set_language(chosen))
-                        for code in ('ru', 'en')}
+                        for code, label in (('ru', 'RU'), ('en', 'EN'), ('uk', 'UA'))}
     paint_language_switch()
     frame = ft.Row([
         ft.Container(width=212, bgcolor='#171926', padding=14, content=ft.Column([

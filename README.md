@@ -11,7 +11,7 @@ The program downloads Nexus Mods files **by itself, with no clicks by a person**
 - **from open browser tabs** in any state: a mod page, its Files tab or the page of one file (`?tab=files&file_id=…`, including Slow download).
   A tab that points to one file downloads that file, otherwise the latest main file.
 
-The language can be switched at any time: RU / EN at the bottom of the side bar. The first start follows the language of Windows.
+The interface is in English, Ukrainian and Russian; the language can be switched at any time: RU / EN / UA at the bottom of the side bar. The first start follows the language of Windows.
 
 ## Download
 

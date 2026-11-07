@@ -35,15 +35,48 @@ const ENGLISH={
   'Ошибка соединения':'Connection error',
   'Канал заданий:':'Job channel:',
   'Программа не приняла ключ подключения':'The program did not accept the connection key'};
-let inEnglish=!(navigator.language||'').toLowerCase().startsWith('ru');
+const UKRAINIAN={
+  'Собирает ссылки модов Nexus из всех окон этого профиля, не переключая вкладки.':'Збирає посилання на моди Nexus з усіх вікон цього профілю, не перемикаючи вкладки.',
+  'Проверяем подключение…':'Перевіряємо підключення…',
+  'Разрешить доступ к Nexus':'Дозволити доступ до Nexus',
+  'Подключить к программе':'Підключити до програми',
+  'Проверить подключение и обновить список':'Перевірити підключення й оновити список',
+  'Откройте Nexus Tab Installer и подтвердите запрос доступа один раз. Никакие другие сайты не передаются.':'Відкрийте Nexus Tab Installer і підтвердьте запит доступу один раз. Жодні інші сайти не передаються.',
+  'Расширению не разрешён доступ к nexusmods.com, поэтому файлы не скачаются.\nНажмите «Разрешить доступ к Nexus».':'Розширенню не дозволено доступ до nexusmods.com, тому файли не завантажаться.\nНатисніть «Дозволити доступ до Nexus».',
+  '✓ Вкладки передаются в программу':'✓ Вкладки передаються в програму',
+  'Модов:':'Модів:',
+  'Окон:':'Вікон:',
+  '✓ Канал загрузок работает':'✓ Канал завантажень працює',
+  '⏳ Проверяем канал загрузок':'⏳ Перевіряємо канал завантажень',
+  'Переподключить':'Перепідключити',
+  'Ожидается разрешение в окне Nexus Tab Installer.\nПосле подтверждения нажмите «Проверить подключение».':'Очікується дозвіл у вікні Nexus Tab Installer.\nПісля підтвердження натисніть «Перевірити підключення».',
+  'Нет соединения. Запустите Nexus Tab Installer.':'Немає з\'єднання. Запустіть Nexus Tab Installer.',
+  'Нет ответа расширения':'Немає відповіді розширення',
+  'Не удалось связаться с фоновым модулем расширения.':'Не вдалося зв\'язатися з фоновим модулем розширення.',
+  'Программа отвечает ошибкой HTTP':'Програма відповідає помилкою HTTP',
+  'На порту 38471 запущена другая программа':'На порту 38471 запущено іншу програму',
+  'Нет соединения с Nexus Tab Installer на 127.0.0.1:38471. Запустите программу и проверьте порт.':'Немає з\'єднання з Nexus Tab Installer на 127.0.0.1:38471. Запустіть програму й перевірте порт.',
+  'Программа доступна, но запрос подключения не прошёл. Проверьте разрешения расширения и перезапустите его.':'Програма доступна, але запит підключення не пройшов. Перевірте дозволи розширення й перезапустіть його.',
+  'Ожидается разрешение в Nexus Tab Installer':'Очікується дозвіл у Nexus Tab Installer',
+  'Нет свежего ответа программы — проверьте соединение':'Немає свіжої відповіді програми, перевірте з\'єднання',
+  'Программа не приняла ключ подключения. Разрешите браузер в окне программы.':'Програма не прийняла ключ підключення. Дозвольте браузер у вікні програми.',
+  'Приложение доступно, но список вкладок не принят:':'Програма доступна, але список вкладок не прийнято:',
+  'Ошибка расширения':'Помилка розширення',
+  'Ошибка соединения':'Помилка з\'єднання',
+  'Канал заданий:':'Канал завдань:',
+  'Программа не приняла ключ подключения':'Програма не прийняла ключ підключення'};
+const WORDS={en:ENGLISH,uk:UKRAINIAN};
+const browserLanguage=(navigator.language||'').toLowerCase().slice(0,2);
+let language=browserLanguage==='ru'||browserLanguage==='uk'?browserLanguage:'en';
 function say(text){
-  if(!inEnglish)return text;
+  const words=WORDS[language];
+  if(!words)return text;
   let result=String(text);
-  for(const russian of Object.keys(ENGLISH).sort((a,b)=>b.length-a.length))result=result.split(russian).join(ENGLISH[russian]);
+  for(const russian of Object.keys(words).sort((a,b)=>b.length-a.length))result=result.split(russian).join(words[russian]);
   return result;
 }
 function sayAll(){
-  document.documentElement.lang=inEnglish?'en':'ru';
+  document.documentElement.lang=language;
   for(const element of document.querySelectorAll('p,small,button,#status'))element.textContent=say(element.textContent);
 }
 function show(data){
@@ -71,7 +104,7 @@ async function send(type){
 }
 // What the program last said about its language wins over the language of the browser.
 api.storage.local.get('appLanguage').then(saved=>{
-  if(saved.appLanguage)inEnglish=saved.appLanguage==='en';
+  if(['ru','en','uk'].includes(saved.appLanguage))language=saved.appLanguage;
   sayAll();
 }).catch(sayAll);
 pair.addEventListener('click',()=>send('pair-browser'));

@@ -1,6 +1,6 @@
 """The language of the screen.
 
-The program is written in Russian, and English is laid over it right where text reaches the screen.
+The program is written in Russian, and English or Ukrainian is laid over it right where text reaches the screen.
 So messages from any part of the program get translated too, even those built from pieces, and the
 logic works with one set of texts no matter what the person reads. What has no translation stays in
 Russian rather than disappearing, and tests/test_language_v450.py finds such texts before they ship.
@@ -13,97 +13,138 @@ import re
 from functools import lru_cache
 
 from nexus_tab_installer.ui.lang_en import EN
+from nexus_tab_installer.ui.lang_uk import UK
 
-LANGUAGES = ('ru', 'en')
+LANGUAGES = ('ru', 'en', 'uk')
 _CYRILLIC = re.compile('[А-Яа-яЁё]')
-_LETTER = 'А-Яа-яЁё'
-_MONTHS = {'января': 'January', 'февраля': 'February', 'марта': 'March', 'апреля': 'April', 'мая': 'May', 'июня': 'June',
-           'июля': 'July', 'августа': 'August', 'сентября': 'September', 'октября': 'October', 'ноября': 'November', 'декабря': 'December'}
-_DATE = re.compile(rf'(\d{{1,2}}) ({"|".join(_MONTHS)}) (\d{{4}})')
+_LETTER = 'А-Яа-яЁёІіЇїЄєҐґ'
+_RUSSIAN_MONTHS = ('января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря')
+_DATE = re.compile(rf'(\d{{1,2}}) ({"|".join(_RUSSIAN_MONTHS)}) (\d{{4}})')
 _SIZE = re.compile(r'(\d+)(?:,(\d+))? (КБ|МБ|ГБ)')
-_UNITS = {'КБ': 'KB', 'МБ': 'MB', 'ГБ': 'GB'}
-# plural() of views.py: the numbers come first and the rest of the phrase follows.
-_COUNTED = {'файл ждёт': ('file is waiting', 'files are waiting'), 'файла ждут': ('file is waiting', 'files are waiting'),
-            'файлов ждут': ('file is waiting', 'files are waiting'), 'файл': ('file', 'files'), 'файла': ('file', 'files'),
-            'файлов': ('file', 'files'), 'сессия': ('session', 'sessions'), 'сессии': ('session', 'sessions'),
-            'сессий': ('session', 'sessions'), 'мод': ('mod', 'mods'), 'мода': ('mod', 'mods'), 'модов': ('mod', 'mods')}
-_COUNT = re.compile(rf'(\d+) ({"|".join(sorted(map(re.escape, _COUNTED), key=len, reverse=True))})(?![{_LETTER}])')
-_ONE_OF_MANY = re.compile(r'\b1 (mod|file|session)s\b')
 _STRONG_PATTERN = 12  # fixed letters that make a pattern with holes specific enough
 _BETWEEN = re.compile(r'(\n+|\s+·\s+|;\s+|(?<=[.!?…])\s+)')
 
 
-def _prepare():
-    exact, holed = {}, []
-    for source, target in EN.items():
-        source, target = source.strip(), target.strip()
-        if '{}' in source:
-            parts = source.split('{}')
-            holed.append((len(''.join(parts)), re.compile('(.*?)'.join(map(re.escape, parts))), target))
-        else:
-            exact[source] = target
-    holed.sort(key=lambda row: row[0], reverse=True)
-    # Pieces of longer messages: phrases only, so that one word in the name of a mod stays as it is.
-    pieces = sorted((key for key in exact if ' ' in key), key=len, reverse=True)
-    inside = re.compile(rf'(?<![{_LETTER}])(?:{"|".join(map(re.escape, pieces))})(?![{_LETTER}])') if pieces else None
-    # Few fixed words match nearly anything: "{} из {}" would swallow a whole message made of sentences.
-    strong = [(pattern, target) for size, pattern, target in holed if size >= _STRONG_PATTERN]
-    loose = [(pattern, target) for size, pattern, target in holed if size < _STRONG_PATTERN]
-    return exact, strong, loose, inside
+def _counted(forms):
+    """A number and the word after it, which plural() of views.py writes in Russian."""
+    return re.compile(rf'(\d+) ({"|".join(sorted(map(re.escape, forms), key=len, reverse=True))})(?![{_LETTER}])')
 
 
-_EXACT, _STRONG, _LOOSE, _INSIDE = _prepare()
+# ---------------------------------------------------------------- English
+_EN_MONTHS = dict(zip(_RUSSIAN_MONTHS, ('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',
+                                        'October', 'November', 'December')))
+_EN_UNITS = {'КБ': 'KB', 'МБ': 'MB', 'ГБ': 'GB'}
+_EN_COUNTED = {'файл ждёт': ('file is waiting', 'files are waiting'), 'файла ждут': ('file is waiting', 'files are waiting'),
+               'файлов ждут': ('file is waiting', 'files are waiting'), 'файл': ('file', 'files'), 'файла': ('file', 'files'),
+               'файлов': ('file', 'files'), 'сессия': ('session', 'sessions'), 'сессии': ('session', 'sessions'),
+               'сессий': ('session', 'sessions'), 'мод': ('mod', 'mods'), 'мода': ('mod', 'mods'), 'модов': ('mod', 'mods')}
+_EN_COUNT = _counted(_EN_COUNTED)
+_ONE_OF_MANY = re.compile(r'\b1 (mod|file|session)s\b')
 
 
-def _matching(text, patterns):
+def _finish_en(text):
+    text = _DATE.sub(lambda m: f'{_EN_MONTHS[m[2]]} {int(m[1])}, {m[3]}', text)
+    text = _SIZE.sub(lambda m: f"{m[1]}{'.' + m[2] if m[2] else ''} {_EN_UNITS[m[3]]}", text)
+    text = _EN_COUNT.sub(lambda m: f'{m[1]} {_EN_COUNTED[m[2]][0 if m[1] == "1" else 1]}', text)
+    return _ONE_OF_MANY.sub(lambda m: f'1 {m[1]}', text)
+
+
+# ---------------------------------------------------------------- Ukrainian: 1 мод, 2 моди, 5 модів, as in Russian
+_UK_MONTHS = dict(zip(_RUSSIAN_MONTHS, ('січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня',
+                                        'жовтня', 'листопада', 'грудня')))
+_UK_WORDS = (('файл', 'файли', 'файлів'), ('мод', 'моди', 'модів'), ('сесія', 'сесії', 'сесій'),
+             ('файл чекає', 'файли чекають', 'файлів чекають'))
+_UK_RUSSIAN = {'файл': 0, 'файла': 0, 'файлов': 0, 'мод': 1, 'мода': 1, 'модов': 1, 'сессия': 2, 'сессии': 2, 'сессий': 2,
+               'файл ждёт': 3, 'файла ждут': 3, 'файлов ждут': 3}
+_UK_FORMS = {**_UK_RUSSIAN, **{form: index for index, forms in enumerate(_UK_WORDS) for form in forms}}
+_UK_COUNT = re.compile(rf'(?:([{_LETTER}]+) )?(\d+) ({"|".join(sorted(map(re.escape, _UK_FORMS), key=len, reverse=True))})(?![{_LETTER}])')
+# After these words the count takes the genitive whatever the number: "з 3 файлів", "не більше 2 файлів".
+_UK_GENITIVE = {'з', 'із', 'зі', 'більше', 'менше', 'після', 'до', 'понад'}
+
+
+def _slavic_form(number):
+    tens, units = number % 100, number % 10
+    return 2 if 11 <= tens <= 14 else 0 if units == 1 else 1 if 2 <= units <= 4 else 2
+
+
+def _finish_uk(text):
+    text = _DATE.sub(lambda m: f'{int(m[1])} {_UK_MONTHS[m[2]]} {m[3]}', text)
+    def agree(m):
+        before = f'{m[1]} ' if m[1] else ''
+        forms = _UK_WORDS[_UK_FORMS[m[3]]]
+        if m[1] and m[1].casefold() in _UK_GENITIVE:
+            return f'{before}{m[2]} {forms[2] if m[2] != "1" else forms[0]}'
+        return f'{before}{m[2]} {forms[_slavic_form(int(m[2]))]}'
+    return _UK_COUNT.sub(agree, text)
+
+
+class _Catalog:
+    def __init__(self, entries, finish):
+        exact, holed = {}, []
+        for source, target in entries.items():
+            source, target = source.strip(), target.strip()
+            if '{}' in source:
+                parts = source.split('{}')
+                holed.append((len(''.join(parts)), re.compile('(.*?)'.join(map(re.escape, parts))), target))
+            else:
+                exact[source] = target
+        holed.sort(key=lambda row: row[0], reverse=True)
+        # Pieces of longer messages: phrases only, so that one word in the name of a mod stays as it is.
+        pieces = sorted((key for key in exact if ' ' in key), key=len, reverse=True)
+        self.inside = re.compile(rf'(?<![{_LETTER}])(?:{"|".join(map(re.escape, pieces))})(?![{_LETTER}])') if pieces else None
+        # Few fixed words match nearly anything: "{} из {}" would swallow a whole message made of sentences.
+        self.strong = [(pattern, target) for size, pattern, target in holed if size >= _STRONG_PATTERN]
+        self.loose = [(pattern, target) for size, pattern, target in holed if size < _STRONG_PATTERN]
+        self.exact, self.finish = exact, finish
+
+
+_CATALOGS = {'en': _Catalog(EN, _finish_en), 'uk': _Catalog(UK, _finish_uk)}
+
+
+def _matching(text, patterns, language):
     stripped = text.strip()
     for pattern, target in patterns:
         match = pattern.fullmatch(stripped)
         if match:
-            return text.replace(stripped, target.format(*(translate(group) for group in match.groups())))
+            return text.replace(stripped, target.format(*(translate(group, language) for group in match.groups())))
     return None
 
 
-def _whole(text):
+def _whole(text, catalog, language):
     stripped = text.strip()
-    if stripped in _EXACT:
-        return text.replace(stripped, _EXACT[stripped])
-    return _matching(text, _STRONG)
+    if stripped in catalog.exact:
+        return text.replace(stripped, catalog.exact[stripped])
+    return _matching(text, catalog.strong, language)
 
 
-def _in_parts(text):
+def _in_parts(text, catalog, language):
     parts = _BETWEEN.split(text)
     if len(parts) > 1:
-        return ''.join(part if index % 2 else translate(part) for index, part in enumerate(parts))
-    result = _matching(text, _LOOSE)
+        return ''.join(part if index % 2 else translate(part, language) for index, part in enumerate(parts))
+    result = _matching(text, catalog.loose, language)
     if result is not None:
         return result
-    return _INSIDE.sub(lambda match: _EXACT[match[0]], text) if _INSIDE else text
+    return catalog.inside.sub(lambda match: catalog.exact[match[0]], text) if catalog.inside else text
 
 
-def _finish(text):
-    text = _DATE.sub(lambda m: f'{_MONTHS[m[2]]} {int(m[1])}, {m[3]}', text)
-    text = _SIZE.sub(lambda m: f"{m[1]}{'.' + m[2] if m[2] else ''} {_UNITS[m[3]]}", text)
-    text = _COUNT.sub(lambda m: f'{m[1]} {_COUNTED[m[2]][0 if m[1] == "1" else 1]}', text)
-    return _ONE_OF_MANY.sub(lambda m: f'1 {m[1]}', text)
-
-
-@lru_cache(maxsize=8192)
-def translate(text):
-    """English for a text of the program. A mod's own name passes through untouched."""
-    if not _CYRILLIC.search(text):
+@lru_cache(maxsize=16384)
+def translate(text, language='en'):
+    """A text of the program in another language. A mod's own name passes through untouched."""
+    catalog = _CATALOGS.get(language)
+    if catalog is None or not _CYRILLIC.search(text):
         return text
-    result = _whole(text)
-    return _finish(result if result is not None else _in_parts(text))
+    result = _whole(text, catalog, language)
+    return catalog.finish(result if result is not None else _in_parts(text, catalog, language))
 
 
 def system_language():
     """For the first start only: what Windows speaks. Later the choice of the person counts."""
     if os.name != 'nt':
-        return 'ru' if (os.environ.get('LANG') or '').startswith('ru') else 'en'
+        code = (os.environ.get('LANG') or '')[:2]
+        return code if code in ('ru', 'uk') else 'en'
     try:
-        # The low byte is the language: 0x19 is Russian.
-        return 'ru' if ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0xFF == 0x19 else 'en'
+        # The low byte is the language: 0x19 is Russian, 0x22 Ukrainian.
+        return {0x19: 'ru', 0x22: 'uk'}.get(ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0xFF, 'en')
     except (AttributeError, OSError):
         return 'ru'
 
@@ -132,7 +173,7 @@ class ScreenLanguage:
         self.touched = self.touched or self.language != 'ru'
 
     def text(self, value):
-        return translate(value) if self.language == 'en' else value
+        return translate(value, self.language) if self.language != 'ru' else value
 
     def _put(self, control, name):
         current = getattr(control, name, None)

@@ -484,6 +484,7 @@ EN = {
     'Расширение устарело': 'Extension out of date',
     'Режим Windows: часть фоновых вкладок может быть недоступна.': 'Windows mode: some background tabs may not be available.',
     'Русский': 'Русский',
+    'Українська': 'Українська',
     'Сбой обработки очереди записан в журнал.': 'A queue failure was written to the log.',
     'Сборка сохранена: {}': 'List saved: {}',
     'Сбросить: последняя MAIN': 'Reset: latest MAIN',

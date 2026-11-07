@@ -18,7 +18,7 @@ First public release. / Перший публічний випуск.
 - **Mod Organizer 2 and Vortex:** files arrive with their Nexus details; a simple mod is installed into the profile of a closed MO2.
 - **Sessions:** each download in its own folder with date and time; deleting a file or a session to the Recycle Bin.
 - **Disk space warnings** and **Windows notifications** when a download ends or your action is needed.
-- **Russian and English**, switchable at any time.
+- **English, Ukrainian and Russian**, switchable at any time.
 - **Portable:** Python and everything else inside the folder, nothing gets installed.
 - Browsers: Edge, Chrome, Opera GX, Firefox.
 
@@ -49,7 +49,7 @@ First public release. / Перший публічний випуск.
 - **Mod Organizer 2 і Vortex:** передавання файлу з даними Nexus; простий мод одразу встановлюється в профіль закритого MO2.
 - **Сесії:** кожне завантаження у своїй папці з датою й часом; видалення файлу або сесії до Кошика.
 - **Попередження про місце на диску** та **сповіщення Windows** про закінчення завантаження й потрібну дію.
-- **Інтерфейс англійською та російською**, перемикання будь-коли.
+- **Інтерфейс українською, англійською та російською**, перемикання будь-коли.
 - **Портативність:** Python і все потрібне всередині папки, нічого не встановлюється.
 - Браузери: Edge, Chrome, Opera GX, Firefox.
 
