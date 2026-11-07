@@ -1,6 +1,6 @@
 # Nexus Tab Installer
 
-**English** | <img src="docs/flags/ua.svg" alt="UA" width="18" height="12"> [Русский](README_RU.md)
+**English** | <img src="docs/flags/ua.svg" alt="UA" width="18" height="12"> [Українська](README_UK.md)
 
 A portable Windows program that downloads Nexus Mods files by itself, from links and from open browser tabs.
 Version 1.0.0 · Windows 10 and 11, 64-bit · [Changelog](CHANGELOG.md)
@@ -131,7 +131,7 @@ To remove the program, delete its folder and remove the extension from the brows
 ## Documentation
 
 - [Connecting a browser](docs/BROWSER_SETUP_GUIDE_EN.html)
-- [На русском](README_RU.md)
+- [Українською](README_UK.md)
 
 ## License
 

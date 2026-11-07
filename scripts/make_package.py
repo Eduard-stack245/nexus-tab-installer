@@ -22,7 +22,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INCLUDE = (
-    'START_WINDOWS.bat', 'README.md', 'README_RU.md', 'LICENSE', 'CHANGELOG.md', 'requirements.txt',
+    'START_WINDOWS.bat', 'README.md', 'README_UK.md', 'LICENSE', 'CHANGELOG.md', 'requirements.txt',
     'scripts/start_windows.bat', 'scripts/nxm_entry.py',
     'docs/BROWSER_SETUP_GUIDE.html', 'docs/BROWSER_SETUP_GUIDE_EN.html', 'docs/SETTINGS.md',
     'src', 'extensions',
