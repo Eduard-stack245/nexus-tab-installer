@@ -9,7 +9,7 @@ description = "Portable Windows program that downloads Nexus Mods files automati
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
-authors = [{name = "Derik"}]
+authors = [{name = "Babii Eduard"}]
 keywords = ["nexus mods", "mods", "downloader", "mod organizer 2", "vortex", "skyrim"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
