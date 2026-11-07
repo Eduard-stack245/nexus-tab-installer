@@ -1,6 +1,6 @@
 # Nexus Tab Installer
 
-[English](README.md) | 🇺🇦 **Русский**
+[English](README.md) | <img src="docs/flags/ua.svg" alt="UA" width="18" height="12"> **Русский**
 
 Портативная программа для Windows, которая сама скачивает моды Nexus Mods по ссылкам и из открытых вкладок браузера.
 Версия 1.0.0 · Windows 10 и 11, 64 бит · [История изменений](CHANGELOG.md)

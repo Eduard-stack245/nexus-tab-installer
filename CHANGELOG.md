@@ -1,6 +1,6 @@
 # Changelog
 
-**English** | 🇺🇦 [Русский](#русский)
+**English** | <img src="docs/flags/ua.svg" alt="UA" width="18" height="12"> [Русский](#русский)
 
 ## 1.0.0
 
