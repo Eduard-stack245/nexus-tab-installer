@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Nexus Tab Collector",
+  "version": "1.0.0",
+  "description": "Pairs with Nexus Tab Installer: reads Nexus mod tabs and downloads the selected mod files automatically (Free and Premium).",
+  "permissions": [
+    "tabs",
+    "storage",
+    "alarms",
+    "downloads"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:38471/*",
+    "https://www.nexusmods.com/*",
+    "https://nexusmods.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.nexusmods.com/*",
+        "https://nexusmods.com/*"
+      ],
+      "js": [
+        "auto_free_content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

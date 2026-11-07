@@ -1,0 +1,7 @@
+# Text is kept with LF in the repository and checked out as each system expects.
+* text=auto
+# Windows needs CRLF in its scripts, a shell needs LF.
+*.bat text eol=crlf
+*.sh text eol=lf
+*.png binary
+*.zip binary

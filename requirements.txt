@@ -1,0 +1,12 @@
+# Exact versions: a build gets the same, tested packages every time.
+flet==0.86.5
+# The desktop window of Flet: without it the program would download it on the first start.
+flet-desktop==0.86.5
+py7zr==1.1.4
+rarfile==4.5
+
+# Windows-only optional accessibility backend for extension-free tab scanning
+pywinauto==0.6.9; sys_platform == "win32"
+
+# Enumerating Windows browser processes also requires this package
+psutil==7.2.2; sys_platform == "win32"

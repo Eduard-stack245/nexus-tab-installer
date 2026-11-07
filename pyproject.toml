@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nexus-tab-installer"
+version = "1.0.0"
+description = "Portable Windows program that downloads Nexus Mods files automatically, from links or open browser tabs"
+readme = "README_EN.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Derik"}]
+keywords = ["nexus mods", "mods", "downloader", "mod organizer 2", "vortex", "skyrim"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Natural Language :: Russian",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Topic :: Games/Entertainment",
+]
+dependencies = ["flet>=0.70,<1", "py7zr>=0.22", "rarfile>=4.2", "psutil>=5.9; sys_platform == 'win32'", "pywinauto>=0.6.9; sys_platform == 'win32'"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

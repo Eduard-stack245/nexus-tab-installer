@@ -1,0 +1,16 @@
+# Personal data of the portable app: API key, browser token, archives, logs.
+data/*
+!data/.gitkeep
+
+__pycache__/
+*.pyc
+.pytest_cache/
+build/
+dist/
+*.spec
+*.log
+*.tmp
+.venv/
+venv/
+.idea/
+.vscode/
